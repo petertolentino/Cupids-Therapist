@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from transformers import pipeline
 import re
+
 class RedFlagDetector:
     def get_results(prompt, threshold):
         # -----------------------------
