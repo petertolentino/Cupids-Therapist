@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from utils.text_extractor import TextExtractor
 
 # Add title & header
 with st.container():
