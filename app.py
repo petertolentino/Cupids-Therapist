@@ -36,7 +36,7 @@ st.markdown(
     unsafe_allow_html = True
 )
 
-# Add title & header
+# Add title, header & threshold
 st.title('Cupid\'s Therapist 💘')
 st.header("AI-Powered Dating App Red Flag Detector", divider="red")
 
@@ -57,12 +57,12 @@ with chat_container:
                 st.image(message["content"]) # images
 
 # Get threshold through slider 
-    threshold = st.sidebar.slider(
-        label = "Threshold",
-        min_value = 0.0,
-        max_value = 1.0,
-        value = 0.3
-    )
+threshold = st.sidebar.slider(
+    label = "Threshold",
+    min_value = 0.0,
+    max_value = 1.0,
+    value = 0.3
+)
 
 # ---- INPUTS ----
 # Retrieve user input (prompt is a dictionary)
@@ -75,17 +75,16 @@ prompt = st.chat_input(
     width="stretch"
 )
 
+combined_text = ""
 # Display user input in chat message container
 if prompt:
-    # Initialize empty text
-    combined_text = ""
-
     # HANDLE TEXT INPUT
     if prompt.text:
         # Display Text in Chat Container
         with chat_container:
             with st.chat_message("user"):
-                st.markdown(prompt.text)  
+                st.markdown(prompt.text)
+                combined_text += prompt.text  
         # Add Text to History
         st.session_state.messages.append({"role": "user", "type": "text", "content": prompt.text})
 
@@ -105,9 +104,13 @@ if prompt:
         st.session_state.messages.append({"role": "user", "type": "image", "content": prompt["files"]})
 
     # Get average red flag score and results
-    results_df, avg_score = re.get_results(combined_text, threshold)
-    results_df = pd.DataFrame(results_df, columns=["Flags", "Scores"])
-    response = "response"   # Generate response to be implemented
+    print(f"prompt {combined_text}")
+    results_df, is_red_flag = re.get_results(combined_text, threshold)
+    results_df= pd.DataFrame(results_df, columns=["Flag", "Scores"])
+    if is_red_flag:
+        response = "RED FLAGGGGGG 🚩🚩🚩🚩🚩🚩"   # Generate response to be implemented
+    else:
+        response = "Average score was under the threshold! ✅"
 
     # Display assistant response in chat message container
     with chat_container:
