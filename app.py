@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from utils.text_extractor import TextExtractor
+from utils.text_extractor import TextExtractor as te
 
 # Add title & header
 with st.container():
@@ -25,38 +25,44 @@ with chat_container:
                 st.image(message["content"])    # images
 
 # ---- INPUTS ----
-# Retrieve user input (data is a dictionary)
-data = st.chat_input(
+# Retrieve user input (prompt is a dictionary)
+prompt = st.chat_input(
     "Enter Texts (text/screenshot)", 
     max_chars=500, 
     max_upload_size=5, 
     accept_file="multiple", 
+    file_type=["jpg", "jpeg", "png"],
     width=1000
 )
 
 # Display user input in chat message container
-if data:
+if prompt:
     # HANDLE TEXT INPUT
-    if data.text:
+    if prompt.text:
         # Display Text in Chat Container
         with chat_container:
             with st.chat_message("user"):
-                st.markdown(data.text)  
+                st.markdown(prompt.text)  
         # Add Text to History
-        st.session_state.messages.append({"role": "user", "type": "text", "content": data.text})
+        st.session_state.messages.append({"role": "user", "type": "text", "content": prompt.text})
 
     # HANDLE IMAGE INPUT
-    if data["files"]:
+    if prompt.files:
         # Display Image in Chat Container
         with chat_container:
             with st.chat_message("user"):
-                for image in data["files"]:
+                for image in prompt.files:
                     st.markdown(image) 
+
+                    # Extract text & append it to the prompt
+                    text = te.extract_from_image(image)
+                    prompt.text += f" {text}"   
+
         # Add Image to History
-        st.session_state.messages.append({"role": "user", "type": "image", "content": data["files"]})
+        st.session_state.messages.append({"role": "user", "type": "image", "content": prompt["files"]})
     
     # Generate a response
-    response = f"Analyzing message: {data.text}" # function to be implemented for response
+    response = f"Analyzing message: {prompt.text}" # function to be implemented for response
     
     # Display assistant response in chat message container
     with chat_container:
