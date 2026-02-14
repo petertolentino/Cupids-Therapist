@@ -9,7 +9,7 @@ with st.container():
     st.header("Show their texts to find out if they're a red flag 🚩🚩🚩", divider="red")
 
 # Chat Message Container
-chat_container = st.container(height=400, border=True)
+chat_container = st.container(height=300, border=True)
 
 # Initialize Message History 
 if "messages" not in st.session_state:
