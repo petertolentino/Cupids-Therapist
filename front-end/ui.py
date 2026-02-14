@@ -4,27 +4,26 @@ import numpy as np
 
 # Add title & header
 with st.container():
-    st.title('Cupid\'s Therapist :cupid:')
-    st.header("Show their texts to find out if they're a red flag :triangular_flag_on_post:", divider="red")
+    st.title('Cupid\'s Therapist 💘')
+    st.header("Show their texts to find out if they're a red flag 🚩🚩🚩", divider="red")
 
 # Chat Message Container
 chat_container = st.container(height=400, border=True)
 
-# Initialize Message History
+# Initialize Message History 
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat messages from history
+# Display Chat History
 with chat_container:
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
-            if type(message) == "text":   
+            if message.get("type") == "text":   
                 st.markdown(message["content"]) # texts
-            elif type(message) == "image":
+            elif message.get("type") == "image":
                 st.image(message["content"])    # images
 
 # ---- INPUTS ----
-
 # Retrieve user input (data is a dictionary)
 data = st.chat_input(
     "Enter Texts (text/screenshot)", 
@@ -36,20 +35,24 @@ data = st.chat_input(
 
 # Display user input in chat message container
 if data:
+    # HANDLE TEXT INPUT
     if data.text:
-        # HANDLE TEXT INPUT
+        # Display Text in Chat Container
         with chat_container:
             with st.chat_message("user"):
                 st.markdown(data.text)  
-        # Add user input to chat history (text)
-        st.session_state.messages.append({"role": "user", "content": data.text})
+        # Add Text to History
+        st.session_state.messages.append({"role": "user", "type": "text", "content": data.text})
+
+    # HANDLE IMAGE INPUT
     if data["files"]:
-        # HANDLE IMAGE INPUT
+        # Display Image in Chat Container
         with chat_container:
             with st.chat_message("user"):
-                st.image(data["files"]) 
-        # Add user input to chat history (image)
-        st.session_state.messages.append({"role": "user", "content": data["files"]})
+                for image in data["files"]:
+                    st.markdown(image) 
+        # Add Image to History
+        st.session_state.messages.append({"role": "user", "type": "image", "content": data["files"]})
     
     # Generate a response
     response = f"Analyzing message: {data.text}" # function to be implemented for response
@@ -59,4 +62,4 @@ if data:
         with st.chat_message("assistant"):
             st.markdown(response)
     # Add response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.session_state.messages.append({"role": "assistant", "type": "text", "content": response})
