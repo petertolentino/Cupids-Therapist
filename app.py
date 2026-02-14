@@ -2,13 +2,45 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from utils.text_extractor import TextExtractor as te
+from utils.detector import RedFlagDetector as re
+
+# Set Page Settings
+st.set_page_config(
+    page_title = "Cupid's Therapist",
+    page_icon = "💘",
+    layout = "wide",
+    initial_sidebar_state= "expanded"
+)
+
+# Inject Custom CSS Styling
+st.markdown(
+    """
+<style>
+    .stProgress > div > div > div > div { background-color: #ff4b4b; }
+    .red-flag {
+        color: #ff4b4b; font-size: 40px; text-align: center; padding: 20px;
+        border-radius: 10px; border: 2px solid #ff4b4b;
+        background-color: rgba(255, 75, 75, 0.1);
+    }
+    .safe-flag {
+        color: #00cc66; font-size: 40px; text-align: center; padding: 20px;
+        border-radius: 10px; border: 2px solid #00cc66;
+        background-color: rgba(0, 204, 102, 0.1);
+    }
+    .metric-card {
+        background-color: #f0f2f6; border-radius: 10px; padding: 15px;
+        text-align: center; margin: 5px;
+    }
+</style>
+""",
+    unsafe_allow_html = True
+)
 
 # Add title & header
-with st.container():
-    st.title('Cupid\'s Therapist 💘')
-    st.header("Show their texts to find out if they're a red flag 🚩🚩🚩", divider="red")
+st.title('Cupid\'s Therapist 💘')
+st.header("AI-Powered Dating App Red Flag Detector", divider="red")
 
-# Chat Message Container
+# Initialize Chat Message Container
 chat_container = st.container(height=300, border=True)
 
 # Initialize Message History 
@@ -24,6 +56,14 @@ with chat_container:
             elif message.get("type") == "image":
                 st.image(message["content"]) # images
 
+# Get threshold through slider 
+    threshold = st.sidebar.slider(
+        label = "Threshold",
+        min_value = 0.0,
+        max_value = 1.0,
+        value = 0.3
+    )
+
 # ---- INPUTS ----
 # Retrieve user input (prompt is a dictionary)
 prompt = st.chat_input(
@@ -32,11 +72,14 @@ prompt = st.chat_input(
     max_upload_size=5, 
     accept_file="multiple", 
     file_type=["jpg", "jpeg", "png"],
-    width=1000
+    width="stretch"
 )
 
 # Display user input in chat message container
 if prompt:
+    # Initialize empty text
+    combined_text = ""
+
     # HANDLE TEXT INPUT
     if prompt.text:
         # Display Text in Chat Container
@@ -56,17 +99,28 @@ if prompt:
 
                     # Extract text & append it to the prompt
                     text = te.extract_text_from_image(image)
-                    prompt.text += f" {text}"   
+                    combined_text += f" {text}"   
 
         # Add Image to History
         st.session_state.messages.append({"role": "user", "type": "image", "content": prompt["files"]})
-    
-    # Generate a response
-    response = f"Analyzing message: {prompt.text}" # function to be implemented for response
-    
+
+    # Get average red flag score and results
+    results_df, avg_score = re.get_results(combined_text, threshold)
+    results_df = pd.DataFrame(results_df, columns=["Flags", "Scores"])
+    response = "response"   # Generate response to be implemented
+
     # Display assistant response in chat message container
     with chat_container:
         with st.chat_message("assistant"):
             st.markdown(response)
+
     # Add response to chat history
     st.session_state.messages.append({"role": "assistant", "type": "text", "content": response})
+
+    # Display Results
+    with st.sidebar:
+        st.divider()
+
+        st.header("Results")
+        results_container = st.container()
+        results_table = st.table(results_df)
