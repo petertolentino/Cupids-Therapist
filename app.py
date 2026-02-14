@@ -22,7 +22,7 @@ with chat_container:
             if message.get("type") == "text":   
                 st.markdown(message["content"]) # texts
             elif message.get("type") == "image":
-                st.image(message["content"])    # images
+                st.image(message["content"]) # images
 
 # ---- INPUTS ----
 # Retrieve user input (prompt is a dictionary)
@@ -52,10 +52,10 @@ if prompt:
         with chat_container:
             with st.chat_message("user"):
                 for image in prompt.files:
-                    st.markdown(image) 
+                    st.image(image) 
 
                     # Extract text & append it to the prompt
-                    text = te.extract_from_image(image)
+                    text = te.extract_text_from_image(image)
                     prompt.text += f" {text}"   
 
         # Add Image to History
