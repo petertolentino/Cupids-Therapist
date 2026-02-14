@@ -28,11 +28,6 @@ class RedFlagDetector:
         ]
 
         # -----------------------------
-        # Thresholds for flagging
-        # -----------------------------
-        threshold = 0.4
-
-        # -----------------------------
         # Keyword boosting rules
         # -----------------------------
         keyword_boosts = {
@@ -91,10 +86,16 @@ class RedFlagDetector:
                         avg_score = max(avg_score, 0.2)  # adjust boost as needed
 
             final_results.append((label, avg_score))
+        
+        # Check if red flag
+        is_red_flag = False
+        for label, score in final_results:
+            if score >= threshold:
+                is_red_flag = True
 
         # -----------------------------
         # Sort results descending
         # -----------------------------
         final_results.sort(key=lambda x: x[1], reverse=True)
-
-        return final_results, avg_score
+            
+        return final_results, is_red_flag
