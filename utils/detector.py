@@ -31,7 +31,7 @@ class RedFlagDetector:
         # Keyword boosting rules
         # -----------------------------
         keyword_boosts = {
-            "love bombing or excessive reassurance": [r"\bi love you\b", r"\bi still do\b", r"\bi miss you\b", r"\byou're amazing\b",  r"\byou're perfect\b", r"\bcan't live without you\b", r"\bdon't deserve you\b"],
+            "love bombing or excessive reassurance": [r"\bcan[’']?t live without you\b", r"\byou('?re| are) my everything\b", r"\bonly you understand me\b", r"\bi need you (all the time|always)\b"],
             "blame shifting responsibility": [r"\byou made me\b", r"\bit's your fault\b", r"\byou caused\b", r"\byou always\b", r"\byou never\b"],
             "emotionally manipulative behavior": [r"\byou should feel\b", r"\byou owe me\b", r"\byou must\b", r"\bnothing without me\b", r"\bworthless\b"],
             "gaslighting or reality distortion": [r"\byou're imagining\b", r"\byou don't remember\b", r"\byou're dramatic\b", r"\bkill myself\b", r"\bnothing without me\b"],
@@ -93,9 +93,16 @@ class RedFlagDetector:
             if score >= threshold:
                 is_red_flag = True
 
+        #shortens label names and rounds scores to two decimals
+        concat_labels = ["Emotionally Manipulative Behavior", "Gaslighting or Reality Distortion", "Verbal Abuse or Insults", "Love Bombing or Excessive Reassurance", "Blame Shifting Responsibility", "Controlling or Possessive Behavior"]
+        for i in range(len(concat_labels)):
+            final_results[i] = (concat_labels[i], final_results[i][1]) 
+
+
+
+
         # -----------------------------
         # Sort results descending
         # -----------------------------
-        final_results.sort(key=lambda x: x[1], reverse=True)
-            
+        final_results.sort(key=lambda x: x[1], reverse=True)   
         return final_results, is_red_flag
