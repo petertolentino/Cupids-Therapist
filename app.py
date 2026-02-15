@@ -107,6 +107,8 @@ if prompt:
     print(f"prompt {combined_text}")
     results_df, is_red_flag = re.get_results(combined_text, threshold)
     results_df= pd.DataFrame(results_df, columns=["Flag", "Scores"])
+
+
     if is_red_flag:
         response = "RED FLAGGGGGG 🚩🚩🚩🚩🚩🚩"   # Generate response to be implemented
     else:

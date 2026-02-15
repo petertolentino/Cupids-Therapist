@@ -93,9 +93,16 @@ class RedFlagDetector:
             if score >= threshold:
                 is_red_flag = True
 
+        #shortens label names and rounds scores to two decimals
+        concat_labels = ["Emotionally Manipulative Behavior", "Gaslighting or Reality Distortion", "Verbal Abuse or Insults", "Love Bombing or Excessive Reassurance", "Blame Shifting Responsibility", "Controlling or Possessive Behavior"]
+        for i in range(len(concat_labels)):
+            final_results[i] = (concat_labels[i], final_results[i][1]) 
+
+
+
+
         # -----------------------------
         # Sort results descending
         # -----------------------------
-        final_results.sort(key=lambda x: x[1], reverse=True)
-            
+        final_results.sort(key=lambda x: x[1], reverse=True)   
         return final_results, is_red_flag
