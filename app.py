@@ -111,6 +111,8 @@ if prompt:
     # Get average red flag score and results
     results_df, is_red_flag = re.get_results(combined_text, threshold)
     results_df= pd.DataFrame(results_df, columns=["Flag", "Scores"])
+
+
     if is_red_flag:
         response = "RED FLAGGGGGG 🚩🚩🚩🚩🚩🚩"   # Generate response to be implemented
     else:
@@ -127,28 +129,6 @@ if prompt:
     # Display Results
     with st.sidebar:
         st.divider()
-        verdict = "🚩 Red Flag" if is_red_flag else "✅ Looks Safe" 
-        st.markdown(f"**Verdict:** {verdict}")
-
-        st.subheader("Confidence 🎯")
-        confidence = float(results_df["Scores"].max()) if not results_df.empty else 0.0
-        st.metric("Highest flag score", f"{confidence:.2f}")
-        
         st.header("Results")
-        results_container = st.container()
+        results_container = st.container() 
         results_table = st.table(results_df)
-        # --- Nice feature: Top-3 flags with progress bars ---
-        st.subheader("Top Flags 🔥")
-
-        # If results_df exists and has rows
-        if not results_df.empty:
-            top3 = results_df.sort_values("Scores", ascending=False).head(3)
-
-            for _, row in top3.iterrows():
-                flag = row["Flag"]
-                score = float(row["Scores"])
-
-                st.markdown(f"**{flag}** — `{score:.2f}`")
-                
-        else:
-            st.caption("No flags detected yet.")
