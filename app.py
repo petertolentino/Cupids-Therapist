@@ -56,9 +56,13 @@ with chat_container:
             elif message.get("type") == "image":
                 st.image(message["content"]) # images
 
+# How it works header
+with st.sidebar:
+    st.subheader("How it works!\n1. Pick a sensitivity\n2. Copy and paste texts or upload a screenshot(s) 📲\n3. Wait for the result!")
+    
 # Get threshold through slider 
 threshold = st.sidebar.slider(
-    label = "Threshold",
+    label = "Overall Sensitivity (Threshold )",
     min_value = 0.0,
     max_value = 1.0,
     value = 0.3
@@ -84,7 +88,8 @@ if prompt:
         with chat_container:
             with st.chat_message("user"):
                 st.markdown(prompt.text)
-                combined_text += prompt.text  
+                combined_text += prompt.text
+
         # Add Text to History
         st.session_state.messages.append({"role": "user", "type": "text", "content": prompt.text})
 
@@ -104,7 +109,6 @@ if prompt:
         st.session_state.messages.append({"role": "user", "type": "image", "content": prompt["files"]})
 
     # Get average red flag score and results
-    print(f"prompt {combined_text}")
     results_df, is_red_flag = re.get_results(combined_text, threshold)
     results_df= pd.DataFrame(results_df, columns=["Flag", "Scores"])
 
