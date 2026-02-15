@@ -56,13 +56,9 @@ with chat_container:
             elif message.get("type") == "image":
                 st.image(message["content"]) # images
 
-# How it works header
-with st.sidebar:
-    st.subheader("How it works!\n1. Pick a sensitivity\n2. Copy and paste texts or upload a screenshot(s) 📲\n3. Wait for the result!")
-    
 # Get threshold through slider 
 threshold = st.sidebar.slider(
-    label = "Overall Sensitivity (Threshold )",
+    label = "Threshold",
     min_value = 0.0,
     max_value = 1.0,
     value = 0.3
@@ -88,8 +84,7 @@ if prompt:
         with chat_container:
             with st.chat_message("user"):
                 st.markdown(prompt.text)
-                combined_text += prompt.text
-
+                combined_text += prompt.text  
         # Add Text to History
         st.session_state.messages.append({"role": "user", "type": "text", "content": prompt.text})
 
@@ -109,6 +104,7 @@ if prompt:
         st.session_state.messages.append({"role": "user", "type": "image", "content": prompt["files"]})
 
     # Get average red flag score and results
+    print(f"prompt {combined_text}")
     results_df, is_red_flag = re.get_results(combined_text, threshold)
     results_df= pd.DataFrame(results_df, columns=["Flag", "Scores"])
     if is_red_flag:
@@ -127,7 +123,28 @@ if prompt:
     # Display Results
     with st.sidebar:
         st.divider()
+        verdict = "🚩 Red Flag" if is_red_flag else "✅ Looks Safe" 
+        st.markdown(f"**Verdict:** {verdict}")
 
+        st.subheader("Confidence 🎯")
+        confidence = float(results_df["Scores"].max()) if not results_df.empty else 0.0
+        st.metric("Highest flag score", f"{confidence:.2f}")
+        
         st.header("Results")
         results_container = st.container()
         results_table = st.table(results_df)
+        # --- Nice feature: Top-3 flags with progress bars ---
+        st.subheader("Top Flags 🔥")
+
+        # If results_df exists and has rows
+        if not results_df.empty:
+            top3 = results_df.sort_values("Scores", ascending=False).head(3)
+
+            for _, row in top3.iterrows():
+                flag = row["Flag"]
+                score = float(row["Scores"])
+
+                st.markdown(f"**{flag}** — `{score:.2f}`")
+                
+        else:
+            st.caption("No flags detected yet.")
